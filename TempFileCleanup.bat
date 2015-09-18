@@ -180,7 +180,8 @@ for %%i in (NVIDIA,ATI,AMD,Dell,Intel,HP) do (
 		)
 
 :: JOB: Remove the Microsoft Office installation cache. Usually around ~1.5 GB
-if exist %SystemDrive%\MSOCache rmdir /S /Q %SystemDrive%\MSOCache >> %LOGPATH%\%LOGFILE%
+:: if exist %SystemDrive%\MSOCache rmdir /S /Q %SystemDrive%\MSOCache >> %LOGPATH%\%LOGFILE%
+:: If you need to repair an installation of Office, not having the MSOCache can cause a problem
 
 :: JOB: Remove the Microsoft Windows installation cache. Can be up to 1.0 GB
 if exist %SystemDrive%\i386 rmdir /S /Q %SystemDrive%\i386 >> %LOGPATH%\%LOGFILE%
@@ -219,29 +220,7 @@ if /i "%WIN_VER:~0,9%"=="Microsoft" (
 	)
 
 
-:: JOB: Windows Server: remove built-in media files (all Server versions)
-echo %WIN_VER%  | findstr /i /%SystemDrive%"server" >NUL
-if %ERRORLEVEL%==0 (
-	echo.
-	echo  ! Server operating system detected.
-	echo    Removing built-in media files ^(.wav, .midi, etc^)...
-	echo.
-	echo. >> %LOGPATH%\%LOGFILE% && echo  ! Server operating system detected. Removing built-in media files ^(.wave, .midi, etc^)...>> %LOGPATH%\%LOGFILE% && echo. >> %LOGPATH%\%LOGFILE%
-
-	:: 2. Take ownership of the files so we can actually delete them. By default even Administrators have Read-only rights.
-	echo    Taking ownership of %WINDIR%\Media in order to delete files... && echo.
-	echo    Taking ownership of %WINDIR%\Media in order to delete files... >> %LOGPATH%\%LOGFILE% && echo. >> %LOGPATH%\%LOGFILE%
-	if exist %WINDIR%\Media takeown /f %WINDIR%\Media /r /d y >> %LOGPATH%\%LOGFILE% 2>NUL && echo. >> %LOGPATH%\%LOGFILE%
-	if exist %WINDIR%\Media icacls %WINDIR%\Media /grant administrators:F /t >> %LOGPATH%\%LOGFILE% && echo. >> %LOGPATH%\%LOGFILE%
-
-	:: 3. Do the cleanup
-	rmdir /S /Q %WINDIR%\Media>> %LOGPATH%\%LOGFILE% 2>NUL
-
-	echo    Done.
-	echo.
-	echo    Done. >> %LOGPATH%\%LOGFILE%
-	echo. >> %LOGPATH%\%LOGFILE%
-	)
+:: Some users (myself included) use Server OS's as a desktop OS. Deleting the media files results in no longer having system sounds.
 
 :: JOB: Windows CBS logs
 ::      these only exist on Vista and up, so we look for "Microsoft", and assuming we don't find it, clear out the folder
